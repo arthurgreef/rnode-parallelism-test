@@ -1,0 +1,16 @@
+#!/bin/zsh
+
+name=rnode-parallelism-test
+export CLOUDSDK_COMPUTE_ZONE=us-east1-d
+
+create_args=(
+        --local-ssd=interface=NVME
+        --machine-type=n1-highcpu-32
+		--min-cpu-platform='Intel Skylake'
+		--image-project=ubuntu-os-cloud
+		--image-family=ubuntu-1910
+		--metadata-from-file=startup-script=startup-script
+		--tags=collectd-out
+)
+gcloud compute instances delete $name --quiet || true
+gcloud compute instances create $name $create_args
