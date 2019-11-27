@@ -1,0 +1,28 @@
+new
+  rl(`rho:registry:lookup`), stdout(`rho:io:stdout`),
+  revVaultCh, log
+in {
+  rl!(`rho:rchain:revVault`, *revVaultCh) |
+  for (@(_, revVault) <- revVaultCh) {
+    match ("11112mzEQdaEaQECbRT8S3zr6NKyvXNGWafJi8dPHnXfjGpWaunKL1", "1111sPCEj4F2Vad2NVSRLvufdJNsKiDNBHWdgTJ49SiDsBBdcZ25E", 50) {
+      (from, to, amount) => {
+        new vaultCh, revVaultKeyCh, deployerId(`rho:rchain:deployerId`) in {
+          @revVault!("findOrCreate", from, *vaultCh) |
+          @revVault!("deployerAuthKey", *deployerId, *revVaultKeyCh) |
+          for (@(true, vault) <- vaultCh; key <- revVaultKeyCh) {
+            new resultCh in {
+              stdout!("transfer called") | 
+              @vault!("transfer", to, amount, *key, *resultCh) |
+              for (@result <- resultCh) {
+                match result {
+                  (true, _) => {stdout!("TX from %from% to %to% succeed.")}
+                  (false, reason) => {stdout!("TX from %from% to %to% failed. Reason: '${reason}'" %% {"reason": reason})}
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

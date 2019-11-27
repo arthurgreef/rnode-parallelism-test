@@ -1,0 +1,2 @@
+sed "s|%GIT_REPO%|$1|g;s|%GIT_HASH%|$2|g;s|%CONTRACT%|$3|g;s|%D_NUM%|$4|g;s|%I_NUM%|$5|g;" startup-script.sh > startup-script.run
+./manage-instance.sh $2 $6 $7

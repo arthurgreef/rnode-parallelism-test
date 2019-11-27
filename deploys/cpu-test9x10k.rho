@@ -1,0 +1,65 @@
+new d1,d2,d3,d4,d5,d6,d7,d8,d9 in {
+  contract d1(@depth) = {
+    if (depth <= 0) {
+      Nil
+    } else {
+      d1!(depth - 1) | d1!(depth - 1) | d1!(depth - 1) | d1!(depth - 1) | d1!(depth - 1) | d1!(depth - 1) | d1!(depth - 1) | d1!(depth - 1) | d1!(depth - 1) | d1!(depth - 1)  }
+  } | 
+  contract d2(@depth) = {
+    if (depth <= 0) {
+      Nil
+    } else {
+      d2!(depth - 1) | d2!(depth - 1) | d2!(depth - 1) | d2!(depth - 1) | d2!(depth - 1) | d2!(depth - 1) | d2!(depth - 1) | d2!(depth - 1) | d2!(depth - 1) | d2!(depth - 1)  }
+  } |
+  contract d3(@depth) = {
+    if (depth <= 0) {
+      Nil
+    } else {
+      d3!(depth - 1) | d3!(depth - 1) | d3!(depth - 1) | d3!(depth - 1) | d3!(depth - 1) | d3!(depth - 1) | d3!(depth - 1) | d3!(depth - 1) | d3!(depth - 1) | d3!(depth - 1)  }
+  } |
+  contract d4(@depth) = {
+    if (depth <= 0) {
+      Nil
+    } else {
+      d4!(depth - 1) | d4!(depth - 1) | d4!(depth - 1) | d4!(depth - 1) | d4!(depth - 1) | d4!(depth - 1) | d4!(depth - 1) | d4!(depth - 1) | d4!(depth - 1) | d4!(depth - 1)  }
+  } |
+  contract d5(@depth) = {
+    if (depth <= 0) {
+      Nil
+    } else {
+      d5!(depth - 1) | d5!(depth - 1) | d5!(depth - 1) | d5!(depth - 1) | d5!(depth - 1) | d5!(depth - 1) | d5!(depth - 1) | d5!(depth - 1) | d5!(depth - 1) | d5!(depth - 1)  }
+  } |
+  contract d6(@depth) = {
+    if (depth <= 0) {
+      Nil
+    } else {
+      d6!(depth - 1) | d6!(depth - 1) | d6!(depth - 1) | d6!(depth - 1) | d6!(depth - 1) | d6!(depth - 1) | d6!(depth - 1) | d6!(depth - 1) | d6!(depth - 1) | d6!(depth - 1)  }
+  } |
+  contract d7(@depth) = {
+    if (depth <= 0) {
+      Nil
+    } else {
+      d7!(depth - 1) | d7!(depth - 1) | d7!(depth - 1) | d7!(depth - 1) | d7!(depth - 1) | d7!(depth - 1) | d7!(depth - 1) | d7!(depth - 1) | d7!(depth - 1) | d7!(depth - 1)  }
+  } |
+  contract d8(@depth) = {
+    if (depth <= 0) {
+      Nil
+    } else {
+      d8!(depth - 1) | d8!(depth - 1) | d8!(depth - 1) | d8!(depth - 1) | d8!(depth - 1) | d8!(depth - 1) | d8!(depth - 1) | d8!(depth - 1) | d8!(depth - 1) | d8!(depth - 1) }
+  } |
+  contract d9(@depth) = {
+    if (depth <= 0) {
+      Nil
+    } else {
+      d9!(depth - 1) | d9!(depth - 1) | d9!(depth - 1) | d9!(depth - 1) | d9!(depth - 1) | d9!(depth - 1) | d9!(depth - 1) | d9!(depth - 1) | d9!(depth - 1) | d9!(depth - 1) }
+  } |
+  d1!(4) |
+  d2!(4) |
+  d3!(4) |
+  d4!(4) |
+  d5!(4) |
+  d6!(4) |
+  d7!(4) |
+  d8!(4) |
+  d9!(4)
+}

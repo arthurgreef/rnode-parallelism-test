@@ -1,0 +1,23 @@
+new d1,d2,d3 in {
+  contract d1(@depth) = {
+    if (depth <= 0) {
+      Nil
+    } else {
+      d1!(depth - 1) | d1!(depth - 1) | d1!(depth - 1) | d1!(depth - 1) | d1!(depth - 1) | d1!(depth - 1) | d1!(depth - 1) | d1!(depth - 1) | d1!(depth - 1) | d1!(depth - 1)  }
+  } | 
+  contract d2(@depth) = {
+    if (depth <= 0) {
+      Nil
+    } else {
+      d2!(depth - 1) | d2!(depth - 1) | d2!(depth - 1) | d2!(depth - 1) | d2!(depth - 1) | d2!(depth - 1) | d2!(depth - 1) | d2!(depth - 1) | d2!(depth - 1) | d2!(depth - 1)  }
+  } |
+  contract d3(@depth) = {
+    if (depth <= 0) {
+      Nil
+    } else {
+      d3!(depth - 1) | d3!(depth - 1) | d3!(depth - 1) | d3!(depth - 1) | d3!(depth - 1) | d3!(depth - 1) | d3!(depth - 1) | d3!(depth - 1) | d3!(depth - 1) | d3!(depth - 1)  }
+  } ||
+  d1!(4) |
+  d2!(4) |
+  d3!(4)
+}
