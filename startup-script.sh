@@ -7,6 +7,7 @@ hash="%GIT_HASH%"
 contract="%CONTRACT%"
 i_num="%I_NUM%"
 d_num="%D_NUM%"
+n_cpu="%N_CPU%"
 
 mkdir /rnode
 export HOME=/rnode
@@ -169,33 +170,33 @@ echo "$(date) Populating configs..." >> $logfile
 cat >$HOME/.rnode/rnode.conf <<EOF
 rnode {
 	server {
-		upnp = false
-		standalone = true
+		upnp: false
+		standalone: true
 		metrics: {
-                prometheus: false
-                zipkin: true
-                sigar: false
-                influxdb: false
-                influxdb-udp: false
-            }
+			prometheus: false
+			zipkin: true
+			sigar: false
+			influxdb: false
+			influxdb-udp: false
+		}
+		synchrony-constraint-threshold: 0.0 
 	}
 	casper {
-		synchrony-constraint-threshold = 0.0 
-		validator-private-key = "5244db4ed932767f78da3931fcfe610cc40e85b2cc8b66606d47767e504c2730"
-		validator-public-key = "0452230abaa5e6630067008686c7b26548f453fb6055d2e67bd3793525e1e8aed32ee7491c2dfecfd2055352dbf3a539b231ba1cb0cc47d5dbcfa6de70a5325a57"
+		validator-private-key: "5244db4ed932767f78da3931fcfe610cc40e85b2cc8b66606d47767e504c2730"
+		validator-public-key: "0452230abaa5e6630067008686c7b26548f453fb6055d2e67bd3793525e1e8aed32ee7491c2dfecfd2055352dbf3a539b231ba1cb0cc47d5dbcfa6de70a5325a57"
 	}
-	kamon {
-        zipkin: {
-            host: "localhost"
-            port: 9411
-            protocol = "http"
-        }
-        trace: {
-            sampler: "always"
-            join-remote-parents-with-same-span-id: true
-        }
-    }
 }
+kamon {
+	zipkin: {
+		hostname: "localhost"
+		port: 9411
+		protocol: "http"
+	}
+	trace: {
+		sampler: "always"
+		join-remote-parents-with-same-span-id: true
+	}
+} 
 EOF
 
 cat >$HOME/.rnode/genesis/bonds.txt <<EOF
@@ -229,17 +230,36 @@ do
 	killall java || true
 	rm -Rf $HOME/.rnode/tmp/ && rm -Rf $HOME/.rnode/rspace && \
 	rm -Rf $HOME/.rnode/dagstorage && rm -Rf $HOME/.rnode/blockstore && \
-	rm -Rf $HOME/.rnode/last-finalized-block && rm $HOME/.rnode/rnode.log || true
-	rnode run -s -J-Xms20g -J-Xmx20g 2>&1 --data-dir "$HOME/.rnode" &
+	rm -Rf $HOME/.rnode/last-finalized-block && rm $HOME/.rnode/rnode.log && \
+	rm -Rf $HOME/.rnode/deploystorage || true
+	rnode run -s -J-Xms10g -J-Xmx20g 2>&1 --data-dir "$HOME/.rnode" &
 	sleep 1
+	j_pid=$(jps | grep Main | sed 's/ Main//g')
 	while ! grep -q 'Making a transition to Running' $HOME/.rnode/rnode.log; do
 		sleep 1
 	done
-	j_pid=$(jps | grep Main | sed 's/ Main//g')
-	for d in $( seq 1 $d_num )
-	do
-		rnode deploy --phlo-limit 1000000000 --phlo-price 1 --private-key d18ca8770fc5dc2a6001329751eef57038b4ac18a77582ebe5c1f531d1966ea4 $HOME/cpu-test.rho
+	sleep 3
+	#only 10 deployments at a time, to not hang server
+	d=0
+	in_prog=0
+	while [ $d -lt $d_num ]; do
+		echo "Sending deploy #$d"
+		if [ $in_prog -lt 10 ]; then
+			in_prog=$(($in_prog+1))
+			d=$(($d+1))
+			rnode deploy --phlo-limit 1000000000 --phlo-price 1 --private-key d18ca8770fc5dc2a6001329751eef57038b4ac18a77582ebe5c1f531d1966ea4 $HOME/cpu-test.rho > deploy_$d.log &2>1 &
+		else
+			while [ $in_prog -eq 10 ]; do 
+				sleep 1
+				finished=$(grep -l "DeployId" *.log) || true
+				for f in $finished; do
+					rm $f
+					in_prog=$(($in_prog-1))
+				done 
+			done
+		fi
 	done
+	sleep 3
 	echo "Run $i deployments done at $(date). Proposing." >> $output
 	{ time rnode propose ; } &
 	echo "Run $i play profiling started at $(date)" >> $output
@@ -249,7 +269,7 @@ do
 		sleep 0.1
 		t=$(($t+1))
 	done
-	$HOME/profiler.sh stop -f $HOME/flamegraphs/$i.play.svg $j_pid $j_pid
+	$HOME/profiler.sh stop -f $HOME/flamegraphs/$i.play.svg $j_pid
 	echo "Run $i play profiling stopped at $(date)" >> $output
 	play=$(echo "scale=2; $t/10" | bc)
 	t=0	
@@ -272,7 +292,7 @@ echo "Averages: play $a_play s., replay $a_replay s." >> $output
 
 # Copy results to files.rchain-dev.tk
 c=$(echo $contract | rev | cut -d'/' -f 1 | rev)
-p="/mnt/storage/benchmarks/$hash/"$c"_x_"$d_num
+p="/mnt/storage/benchmarks/$hash/"$c"_x_"$d_num"_x_"$n_cpu"cpu"
 mkdir $p || true
 # Copying benchmark results
 cp $output $p/ 

@@ -4,7 +4,7 @@ name=rnode-parallelism-test
 export CLOUDSDK_COMPUTE_ZONE=us-east1-d
 
 create_args=(
-        --machine-type=n1-highcpu-$3
+        --machine-type=n1-standard-$3
 		--min-cpu-platform='Intel Skylake'
 		--image-project=ubuntu-os-cloud
 		--image-family=ubuntu-1910
@@ -16,7 +16,7 @@ create_args=(
 gcloud compute instances delete $name --quiet || true
 gcloud compute instances create $name $create_args 2>&1 > ./.gcloud.log
 
-IP=$(grep RUNNING .gcloud.log | cut -d ' ' -f 22)
+IP=$(grep RUNNING .gcloud.log | awk '{print $5}')
 echo "Installing instance... Visit http://$IP after several minutes to follow the progress. \
 Do not close this shell, it will be closed automatically when benchmark is finished."
 
