@@ -47,7 +47,7 @@ BADGER_DIRECTORY_VALUE=/jaeger_badger/data
 BADGER_DIRECTORY_KEY=/jaeger_badger/key
 BADGER_EPHEMERAL=false
 SPAN_STORAGE_TYPE=badger
-BADGER_CONSISTENCY=true 
+BADGER_CONSISTENCY=true
 nohup $HOME/jaeger-1.15.1-linux-amd64/jaeger-all-in-one --collector.zipkin.http-port=9411 \
 --query.base-path=/jaeger 2>&1 &
 
@@ -150,9 +150,9 @@ else
 	git clone $git_repo rnode
 	cd rnode
 	git checkout $hash
-	sbt clean 
-	sbt rholang/bnfc:clean  
-	sbt rholang/bnfc:generate 
+	sbt clean
+	sbt rholang/bnfc:clean
+	sbt rholang/bnfc:generate
 	sbt compile
 	sbt universal:stage
 	cp -R $(pwd)/node/target/universal/stage/* /opt/rnode
@@ -168,24 +168,22 @@ mkdir -p $HOME/.rnode/genesis
 echo "$(date) Populating configs..." >> $logfile
 # Populate config files
 cat >$HOME/.rnode/rnode.conf <<EOF
-rnode {
-	server {
-		upnp: false
-		standalone: true
-		metrics: {
-			prometheus: false
-			zipkin: true
-			sigar: false
-			influxdb: false
-			influxdb-udp: false
-		}
-		synchrony-constraint-threshold: 0.0 
-	}
-	casper {
-		validator-private-key: "5244db4ed932767f78da3931fcfe610cc40e85b2cc8b66606d47767e504c2730"
-		validator-public-key: "0452230abaa5e6630067008686c7b26548f453fb6055d2e67bd3793525e1e8aed32ee7491c2dfecfd2055352dbf3a539b231ba1cb0cc47d5dbcfa6de70a5325a57"
-	}
+standalone: true
+metrics: {
+	prometheus: false
+	zipkin: true
+	sigar: false
+	influxdb: false
+	influxdb-udp: false
 }
+casper: {
+	synchrony-constraint-threshold: 0.0
+	validator-private-key: "5244db4ed932767f78da3931fcfe610cc40e85b2cc8b66606d47767e504c2730"
+	validator-public-key: "0452230abaa5e6630067008686c7b26548f453fb6055d2e67bd3793525e1e8aed32ee7491c2dfecfd2055352dbf3a539b231ba1cb0cc47d5dbcfa6de70a5325a57"
+}
+EOF
+
+cat >$HOME/.rnode/kamon.conf <<EOF
 kamon {
 	zipkin: {
 		hostname: "localhost"
@@ -196,7 +194,7 @@ kamon {
 		sampler: "always"
 		join-remote-parents-with-same-span-id: true
 	}
-} 
+}
 EOF
 
 cat >$HOME/.rnode/genesis/bonds.txt <<EOF
@@ -224,7 +222,7 @@ wget $contract -O $HOME/cpu-test.rho
 echo "Benchmark started at $(date). Number of iterations: $i_num" > $output
 echo "Source code: $git_repo, commit $hash" >> $output
 echo "Contract: $contract, $d_num deployments" >> $output
-for i in $( seq 1 $i_num ) 
+for i in $( seq 1 $i_num )
 do
 	echo "Run $i of $i_num started at $(date)" >> $output
 	killall java || true
@@ -249,22 +247,22 @@ do
 			d=$(($d+1))
 			rnode deploy --phlo-limit 1000000000 --phlo-price 1 --private-key d18ca8770fc5dc2a6001329751eef57038b4ac18a77582ebe5c1f531d1966ea4 $HOME/cpu-test.rho > deploy_$d.log &2>1 &
 		else
-			while [ $in_prog -eq 10 ]; do 
+			while [ $in_prog -eq 10 ]; do
 				sleep 1
 				finished=$(grep -l "DeployId" *.log) || true
 				for f in $finished; do
 					rm $f
 					in_prog=$(($in_prog-1))
-				done 
+				done
 			done
 		fi
 	done
 	sleep 3
 	echo "Run $i deployments done at $(date). Proposing." >> $output
-	{ time rnode propose ; } &
+	{ time rnode --grpc-port 40402 propose ; } &
 	echo "Run $i play profiling started at $(date)" >> $output
 	$HOME/profiler.sh start $j_pid
-	t=0	
+	t=0
 	while ! grep -q 'Attempting to add Block' $HOME/.rnode/rnode.log; do
 		sleep 0.1
 		t=$(($t+1))
@@ -272,9 +270,9 @@ do
 	$HOME/profiler.sh stop -f $HOME/flamegraphs/$i.play.svg $j_pid
 	echo "Run $i play profiling stopped at $(date)" >> $output
 	play=$(echo "scale=2; $t/10" | bc)
-	t=0	
+	t=0
 	echo "Run $i replay profiling started at $(date)" >> $output
-	$HOME/profiler.sh start $j_pid 
+	$HOME/profiler.sh start $j_pid
 	while ! grep -q 'Sent Block\|Sent hash' $HOME/.rnode/rnode.log; do
 		sleep 0.1
 		t=$(($t+1))
@@ -295,7 +293,7 @@ c=$(echo $contract | rev | cut -d'/' -f 1 | rev)
 p="/mnt/storage/benchmarks/$hash/"$c"_x_"$d_num"_x_"$n_cpu"cpu"
 mkdir $p || true
 # Copying benchmark results
-cp $output $p/ 
+cp $output $p/
 # Copying contract used
 cp $HOME/cpu-test.rho $p/$c
 # Copying flamegraphs
