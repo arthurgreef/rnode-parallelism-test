@@ -9,10 +9,10 @@ i_num="%I_NUM%"
 d_num="%D_NUM%"
 n_cpu="%N_CPU%"
 
-mkdir /rnode
+mkdir -p /rnode
 export HOME=/rnode
 cd $HOME
-mkdir $HOME/flamegraphs
+mkdir -p $HOME/flamegraphs
 logfile="$HOME/test.log"
 
 echo "$(date) Apt update..." >> $logfile
@@ -136,9 +136,8 @@ sudo sh -c "echo 1 > /proc/sys/kernel/perf_event_paranoid"
 sudo sh -c "echo 0 > /proc/sys/kernel/kptr_restrict"
 
 # Check if binary present on files.rchain-dev.tk
-mkdir /mnt/storage/
-mkdir /opt/rnode
-mount -t gcsfuse -o limit_ops_per_sec=-1 public.bucket.rchain-dev.tk /mnt/storage/
+mkdir -p /mnt/storage/
+mkdir -p /opt/rnode
 p="/mnt/storage/benchmarks/$hash/"
 if [ -f "$p/rnode.tar.gz" ]; then
 	tar -xzf $p/rnode.tar.gz -C /opt/rnode
@@ -158,7 +157,7 @@ else
 	cp -R $(pwd)/node/target/universal/stage/* /opt/rnode
 
 	# Push binary to the storage
-	mkdir $p || true
+	mkdir -p $p || true
 	tar -czf "$p/rnode.tar.gz" -C /opt/rnode/ .
 fi
 chmod +x /opt/rnode/bin/rnode
@@ -291,7 +290,7 @@ echo "Averages: play $a_play s., replay $a_replay s." >> $output
 # Copy results to files.rchain-dev.tk
 c=$(echo $contract | rev | cut -d'/' -f 1 | rev)
 p="/mnt/storage/benchmarks/$hash/"$c"_x_"$d_num"_x_"$n_cpu"cpu"
-mkdir $p || true
+mkdir -p $p || true
 # Copying benchmark results
 cp $output $p/
 # Copying contract used
@@ -302,4 +301,3 @@ cp -R $HOME/flamegraphs/ $p/
 cp $HOME/.rnode/rnode.log $p/
 # Copying Jaeger storage
 cp -R $HOME/jaeger_badger $p/
-umount /rnode/storage/
